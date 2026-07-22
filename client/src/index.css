@@ -1,0 +1,162 @@
+:root {
+  --text: #e5e5e5;
+  --text-h: #ffffff;
+
+  --bg: #000000;
+
+  --border: #1f1f1f;
+
+  --code-bg: #111111;
+
+  --accent: #0d6efd;
+
+  --accent-bg: rgba(13, 110, 253, 0.15);
+
+  --accent-border: rgba(13, 110, 253, 0.45);
+
+  --social-bg: #111111;
+
+  --shadow:
+    rgba(0, 0, 0, 0.8) 0 10px 15px -3px,
+    rgba(0, 0, 0, 0.6) 0 4px 6px -2px;
+
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+
+  color: var(--text);
+
+  background: var(--bg);
+
+  color-scheme: dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+}
+
+#root {
+  width: 1126px;
+  max-width: 100%;
+  margin: 0 auto;
+
+  background: #000;
+
+  color: white;
+
+  border-inline: 1px solid #222;
+
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  background: #111 !important;
+  color: white !important;
+  border: 1px solid #222 !important;
+}
+
+
+.table {
+  color: white !important;
+}
+
+.table thead {
+  background: #111 !important;
+}
+
+.table td,
+.table th {
+  border-color: #222 !important;
+}
+
+
+.form-control,
+.form-select {
+  background: #111 !important;
+  color: white !important;
+  border: 1px solid #333 !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: #111 !important;
+  color: white !important;
+}
+
+.modal-content {
+  background: #111;
+  color: white;
+}
+
+
+.btn-primary {
+  background: #0d6efd;
+  border: none;
+}
+
+.btn-success {
+  background: #198754;
+}
+
+.btn-danger {
+  background: #dc3545;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+}

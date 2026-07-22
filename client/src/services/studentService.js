@@ -1,0 +1,19 @@
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: "http://localhost:5000/api",
+});
+
+export const getStudents = async (group, search) => {
+  const response = await API.get("/students", {
+    params: { group, search },
+  });
+
+  return response.data;
+};
+
+export const markAttendance = async (student) => {
+  const response = await API.post("/attendance", student);
+  return response.data;
+};
+
