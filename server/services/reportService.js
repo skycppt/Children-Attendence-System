@@ -105,6 +105,8 @@ export async function getSummaryReport(group = "All") {
     const attendanceMap = {};
 
     attendanceRows.forEach((row) => {
+      if (!isToday(row.date)) return;
+
       attendanceMap[normalize(row.rollNo)] = row;
     });
 
@@ -408,6 +410,21 @@ export async function getStudentReport(
 
   return student;
 }
+
+
+function isToday(dateString) {
+  if (!dateString) return false;
+
+  const attendanceDate = new Date(dateString);
+  const today = new Date();
+
+  return (
+    attendanceDate.getFullYear() === today.getFullYear() &&
+    attendanceDate.getMonth() === today.getMonth() &&
+    attendanceDate.getDate() === today.getDate()
+  );
+}
+
 
 export async function getDashboardSummary() {
   const summary = await getSummaryReport("All");
