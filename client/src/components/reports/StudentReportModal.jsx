@@ -14,7 +14,7 @@ export default function StudentReportModal({ student, onClose }) {
           <div className="modal-content">
 
             <div className="modal-header">
-              <h5 className="modal-title">Student Report</h5>
+              <h5 className="modal-title">Report</h5>
 
               <button
                 type="button"

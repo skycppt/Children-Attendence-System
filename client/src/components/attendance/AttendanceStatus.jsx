@@ -1,6 +1,7 @@
 function AttendanceStatus() {
   // Testing only
-  const now = new Date("2026-07-19T11:00:00");
+  // const now = new Date("2026-07-19T11:00:00");
+  const now = new Date();
 
   const day = now.getDay();
 
