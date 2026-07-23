@@ -201,7 +201,7 @@ function Attendance() {
 
       )}
 
-      {/* <div className="card shadow-sm mt-4">
+      <div className="card shadow-sm mt-4">
 
         <div className="card-body text-center">
 
@@ -218,7 +218,7 @@ function Attendance() {
 
         </div>
 
-      </div> */}
+      </div>
 
     </div>
   );
