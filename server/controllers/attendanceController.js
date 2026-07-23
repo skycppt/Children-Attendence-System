@@ -14,7 +14,8 @@ export const markAttendance = async (req, res) => {
         ? "Senior"
         : "Youth";
 
-    const now = new Date("2026-07-19T11:00:00");
+    const now = new Date();
+    // const now = new Date("2026-07-19T11:00:00");
 
     // Sunday = 0
     if (now.getDay() !== 0) {

@@ -14,7 +14,8 @@ export const getTodayStats = async (req, res) => {
     let late = 0;
 
     // Change this back to new Date() after testing
-    const now = new Date("2026-07-19T11:00:00");
+    // const now = new Date("2026-07-19T11:00:00");
+    const now = new Date();
     const today = now.toLocaleDateString("en-CA");
 
     for (const group of groups) {
