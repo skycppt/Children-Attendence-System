@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import {
   getSummaryReport,
   getMonthlyReport,
+  getStudentReport,
+  getTop3ByGroup,
 } from "../services/reportService";
 
 import SummaryCards from "../components/reports/SummaryCards";
@@ -12,7 +14,6 @@ import MonthlyReportTable from "../components/reports/MonthlyReportTable";
 import ReportFilters from "../components/reports/ReportFilters";
 import StudentReportModal from "../components/reports/StudentReportModal";
 import Top3Cards from "../components/reports/Top3Cards";
-import { getTop3ByGroup } from "../services/reportService";
 
 export default function Reports() {
   const navigate = useNavigate();
@@ -27,6 +28,8 @@ export default function Reports() {
   const [month, setMonth] = useState(currentMonth);
 
   const [selectedStudent, setSelectedStudent] = useState(null);
+
+  const [loadingStudent, setLoadingStudent] = useState(false);
 
   const loadSummary = async () => {
     const data = await getSummaryReport(group);
@@ -52,6 +55,17 @@ const loadTop3 = async () => {
     console.error(err);
   }
 };
+const handleView = async (rollNo) => {
+  try {
+    const student = await getStudentReport(rollNo);
+
+    console.log(student);
+
+    setSelectedStudent(student);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
 
   useEffect(() => {
@@ -59,6 +73,10 @@ const loadTop3 = async () => {
     loadMonthly();
     loadTop3();
   }, [group, month]);
+
+  useEffect(() => {
+  console.log(selectedStudent);
+}, [selectedStudent]);
 
   if (!summary) {
     return <h3 className="text-center mt-5">Loading...</h3>;
@@ -78,9 +96,13 @@ const loadTop3 = async () => {
 
         <h2>Attendance Reports</h2>
 
-        <button className="btn btn-danger">
-          Export PDF
+        <button>
+          {/* Export PDF */}
         </button>
+
+        {/* <button className="btn btn-danger">
+          Export PDF
+        </button> */}
 
       </div>
 
@@ -117,8 +139,8 @@ const loadTop3 = async () => {
       />
 
         <MonthlyReportTable
-          students={students}
-          onView={setSelectedStudent}
+            students={students}
+            onView={handleView}
         />
         
 

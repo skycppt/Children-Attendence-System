@@ -59,11 +59,11 @@ export default function MonthlyReportTable({
               <td>
 
                 <button
-                  className="btn btn-primary btn-sm"
-                  onClick={() => onView(student.rollNo)}
-              >
-                  View
-              </button>
+                    className="btn btn-primary btn-sm"
+                    onClick={() => onView(student.rollNo)}
+                >
+                    View
+                </button>
 
               </td>
 

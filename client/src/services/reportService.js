@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const API = axios.create({
-  // baseURL: "http://localhost:5000/api",
-  baseURL: "https://attendance-backend-d64z.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
+  // baseURL: "https://attendance-backend-d64z.onrender.com/api",
 });
 
 export const getSummaryReport = async (group = "All") => {
@@ -46,14 +46,18 @@ export const getTopPerformers = async (
   return response.data;
 };
 
-export const getStudentReport = async (rollNo, month = "") => {
-  const response = await API.get(`/reports/student/${rollNo}`, {
-    params: {
-      month,
-    },
-  });
+export const getStudentReport = async (
+  rollNo,
+  month = ""
+) => {
+  const response = await API.get(
+    `/reports/student/${rollNo}`,
+    {
+      params: { month },
+    }
+  );
 
-  return response.data;
+  return response.data.student;
 };
 
 export const getTop3ByGroup = async (month = "") => {

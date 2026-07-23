@@ -184,7 +184,7 @@ function Attendance() {
 
             <p><strong>Phone:</strong> {selectedStudent.phone}</p>
 
-            <p><strong>Blood Group:</strong> {selectedStudent.bloodGroup}</p>
+            {/* <p><strong>Blood Group:</strong> {selectedStudent.bloodGroup}</p> */}
 
             <p><strong>Group:</strong> {selectedStudent.group}</p>
 
