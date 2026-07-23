@@ -46,6 +46,17 @@ function calculateMinutesLate(time) {
   return Math.max(0, attendanceMinutes - schoolMinutes);
 }
 
+function getDayName(dateString) {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+}
+
+function getUniqueAttendanceDates(rows) {
+  return [...new Set(rows.map((r) => r.date))]
+    .sort((a, b) => new Date(a) - new Date(b));
+}
+
 function formatAverageTime(totalMinutes, count) {
   if (!count) return "-";
 
@@ -268,60 +279,68 @@ export async function getMonthlyReport(
       studentMap[student.rollNo] = student;
     });
 
-    attendanceRows.forEach((attendance) => {
-      if (
-        month &&
-        !isSameMonth(attendance.date, month)
-      ) {
-        return;
-      }
+    // Attendance rows of selected month only
+const filteredAttendance = attendanceRows.filter(
+  (attendance) =>
+    !month || isSameMonth(attendance.date, month)
+);
 
-      const rollNo = normalize(
-        attendance.rollNo
-      );
+// All attendance dates in this month
+const attendanceDates = [
+  ...new Set(filteredAttendance.map((a) => a.date)),
+].sort((a, b) => new Date(a) - new Date(b));
 
-      const student = studentMap[rollNo];
-
-      if (!student) return;
-
-      student.attendanceHistory.push({
-        date: attendance.date,
-        time: attendance.time,
-        status: attendance.status,
-      });
-
-      if (attendance.status === "Present") {
-        student.present++;
-      } else if (
-        attendance.status === "Late"
-      ) {
-        student.late++;
-      }
-
-      const minutes =
-        calculateMinutesLate(
-          attendance.time
-        );
-
-      student.totalMinutesLate += minutes;
-
-      const arrival =
-        timeToMinutes(attendance.time);
-
-      if (arrival !== null) {
-        student.totalArrivalMinutes +=
-          arrival;
-      }
+// Initially every student is absent on every attendance day
+Object.values(studentMap).forEach((student) => {
+  attendanceDates.forEach((date) => {
+    student.attendanceHistory.push({
+      date,
+      day: getDayName(date),
+      time: "-",
+      status: "Absent",
     });
+  });
+
+  student.absent = attendanceDates.length;
+});
+
+// Update Absent → Present/Late
+filteredAttendance.forEach((attendance) => {
+  const student =
+    studentMap[normalize(attendance.rollNo)];
+
+  if (!student) return;
+
+  const record = student.attendanceHistory.find(
+    (r) => r.date === attendance.date
+  );
+
+  if (!record) return;
+
+  record.time = attendance.time;
+  record.status = attendance.status;
+
+  student.absent--;
+
+  if (attendance.status === "Present") {
+    student.present++;
+  } else if (attendance.status === "Late") {
+    student.late++;
+  }
+
+  const minutes = calculateMinutesLate(attendance.time);
+
+  student.totalMinutesLate += minutes;
+
+  const arrival = timeToMinutes(attendance.time);
+
+  if (arrival !== null) {
+    student.totalArrivalMinutes += arrival;
+  }
+});
 
     Object.values(studentMap).forEach(
       (student) => {
-        student.absent = Math.max(
-          0,
-          student.attendanceHistory.length -
-            student.present -
-            student.late
-        );
 
         calculateStudentStatistics(
           student
@@ -333,38 +352,37 @@ export async function getMonthlyReport(
   }
 
   students.sort((a, b) => {
-    if (
-      b.attendancePercentage !==
-      a.attendancePercentage
-    ) {
-      return (
-        b.attendancePercentage -
-        a.attendancePercentage
-      );
-    }
+  // 1. Higher attendance percentage
+  if (b.attendancePercentage !== a.attendancePercentage) {
+    return b.attendancePercentage - a.attendancePercentage;
+  }
 
-    if (b.present !== a.present) {
-      return b.present - a.present;
-    }
+  // 2. Higher Present count
+  if (b.present !== a.present) {
+    return b.present - a.present;
+  }
 
-    if (a.late !== b.late) {
-      return a.late - b.late;
-    }
+  // 3. Lower Late count
+  if (a.late !== b.late) {
+    return a.late - b.late;
+  }
 
-    if (
-      a.totalMinutesLate !==
-      b.totalMinutesLate
-    ) {
-      return (
-        a.totalMinutesLate -
-        b.totalMinutesLate
-      );
-    }
+  // 4. Earlier average arrival time
+  const avgA = timeToMinutes(a.averageArrivalTime);
+  const avgB = timeToMinutes(b.averageArrivalTime);
 
-    return a.rollNo.localeCompare(
-      b.rollNo
-    );
-  });
+  if (avgA !== avgB) {
+    return avgA - avgB;
+  }
+
+  // 5. Lower total minutes late
+  if (a.totalMinutesLate !== b.totalMinutesLate) {
+    return a.totalMinutesLate - b.totalMinutesLate;
+  }
+
+  // 6. Roll number
+  return a.rollNo.localeCompare(b.rollNo);
+});
 
   students.forEach((student, index) => {
     student.rank = index + 1;
@@ -394,18 +412,112 @@ export async function getStudentReport(
 ) {
   rollNo = normalize(rollNo);
 
-  const students = await getMonthlyReport("All", month);
+  let student = null;
+  let selectedGroup = null;
 
-  const student = students.find(
-    (s) => s.rollNo === rollNo
-  );
+  // Find student
+  for (const g of GROUPS) {
+    const rows = await getSheetData(g.studentSheet);
+
+    const validStudents = rows
+      .slice(2)
+      .filter((r) => r[0]);
+
+    const row = validStudents.find(
+      (r) => normalize(r[0]) === rollNo
+    );
+
+    if (row) {
+      student = createStudentObject(row, g.name);
+      selectedGroup = g;
+      break;
+    }
+  }
 
   if (!student) {
     throw new Error("Student not found");
   }
 
+  const attendanceRows =
+    await getAttendanceRows(
+      selectedGroup.attendanceSheet
+    );
+
+  const rows = month
+    ? attendanceRows.filter((r) =>
+        isSameMonth(r.date, month)
+      )
+    : attendanceRows;
+
+  const allDates =
+    getUniqueAttendanceDates(rows);
+
+  for (const date of allDates) {
+
+    const record = rows.find(
+      (r) =>
+        normalize(r.rollNo) === rollNo &&
+        r.date === date
+    );
+
+    if (record) {
+
+      student.attendanceHistory.push({
+
+        date,
+
+        day: getDayName(date),
+
+        time: record.time,
+
+        status: record.status,
+
+      });
+
+      if (record.status === "Present") {
+        student.present++;
+      }
+
+      else if (record.status === "Late") {
+        student.late++;
+      }
+
+      student.totalMinutesLate +=
+        calculateMinutesLate(record.time);
+
+      const arrival =
+        timeToMinutes(record.time);
+
+      if (arrival !== null) {
+        student.totalArrivalMinutes +=
+          arrival;
+      }
+
+    } else {
+
+      student.attendanceHistory.push({
+
+        date,
+
+        day: getDayName(date),
+
+        time: "-",
+
+        status: "Absent",
+
+      });
+
+      student.absent++;
+
+    }
+
+  }
+
+  calculateStudentStatistics(student);
+
   student.attendanceHistory.sort(
-    (a, b) => new Date(a.date) - new Date(b.date)
+    (a, b) =>
+      new Date(a.date) - new Date(b.date)
   );
 
   return student;
