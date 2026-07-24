@@ -123,7 +123,7 @@ const handleView = async (rollNo) => {
         />
 
 
-        <Top3Cards
+        {/* <Top3Cards
         title="🏆 Junior Top 3"
         students={top3.Junior}
       />
@@ -136,7 +136,7 @@ const handleView = async (rollNo) => {
       <Top3Cards
         title="🏆 Youth Top 3"
         students={top3.Youth}
-      />
+      /> */}
 
         <MonthlyReportTable
             students={students}

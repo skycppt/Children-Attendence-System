@@ -150,16 +150,15 @@ function Attendance() {
             <button
               key={student.rollNo}
               className="list-group-item list-group-item-action"
-              onClick={() => setSelectedStudent(student)}
+              onClick={() => {
+                setSelectedStudent(student);
+                setStudents([]);   // Hide search results
+                setSearch("");     // Clear search box
+              }}
             >
-
-              <strong>{student.rollNo}</strong>
-
-              {" - "}
-
-              {student.name}
-
+              <strong>{student.rollNo}</strong> - {student.name}
             </button>
+
 
           ))}
 
